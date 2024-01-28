@@ -3,7 +3,10 @@
 use tokio;      // Multithreading
 use serde_json; // JSON packing/unpacking
 use reqwest;    // Networking
-use anyhow;     // Error Wrangling
+use anyhow::{self, Context};     // Error Wrangling
+
+const TOKEN_URL: &str = "https://login.eveonline.com/oauth/xxx";
+
 
 // Main function
 #[tokio::main]
@@ -32,14 +35,13 @@ async fn get_token(
     callback_uri: &str,
     authorization_code: &str,
 ) -> Result<String, anyhow::Error> {
-    let token_url: &str = "https://login.eveonline.com/oauth/token";    // API Address
 
     // Client networking
-    let client: reqwest::Client = reqwest::Client::new();
+    let client = reqwest::Client::new();
 
     // Handle response Pt 1: Auth
     let response = client
-        .post(token_url)
+        .post(TOKEN_URL)
         .basic_auth(client_id, Some(client_secret))
         .form(&[
             ("grant_type", "authorization_code"),
@@ -47,20 +49,17 @@ async fn get_token(
             ("redirect_uri", callback_uri),
         ])
         .send()
-        .await?;
+        .await?
+        .error_for_status()
+        .context("Request Failed")?;
 
-    
-    // Handle response Pt 2: Grab Data
-        if response.status().is_success() {
-            let response_text = response.text().await?;
-            let token_info: serde_json::Value = serde_json::from_str(&response_text)?;
-            let access_token = token_info["access_token"].as_str().unwrap_or_default().to_string();
-        
-            Ok(access_token)
-        } 
-        
-        else {
-            // Use a different name for the error variable to avoid conflicts
-            Err(anyhow::anyhow!("Request failed with Status: {}", response.status()))
-        }
-    }
+    let response_text = response.text().await?;
+    let token_info: serde_json::Value = serde_json::from_str(&response_text)
+        .context("Failed to parse JSON")?;
+    let access_token = token_info["access_token"]
+        .as_str()
+        .unwrap_or_default()
+        .to_string();
+
+    Ok(access_token)
+}     
