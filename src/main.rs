@@ -1,17 +1,19 @@
 //Autism.rs
 
-use tokio;
-use serde_json;
-use reqwest;
-use anyhow;
+use tokio;      // Multithreading
+use serde_json; // JSON packing/unpacking
+use reqwest;    // Networking
+use anyhow;     // Error Wrangling
 
+// Main function
 #[tokio::main]
 async fn main() {
-    let client_id: &str = "xxx";
-    let client_secret: &str = "xxx";
-    let callback_uri: &str = "https://eve-api-callback";
-    let authorization_code: &str = "xxx";
+    let client_id: &str = "xxx";                                    // Eve Client ID
+    let client_secret: &str = "xxx";                                // Eve Client Secret (TODO: Pull as SysVar or File)
+    let callback_uri: &str = "https://eve-api-callback";            // CCP Callback ID
+    let authorization_code: &str = "xxx";                           // oAuth2 ID
 
+    // How did we do? 🤔🤔🤔
     match get_token(client_id, client_secret, callback_uri, authorization_code).await {
         Ok(access_token) => {
             println!("Access Token: {}", access_token);
@@ -23,13 +25,15 @@ async fn main() {
     }
 }
 
+
+// API Call
 async fn get_token(
     client_id: &str,
     client_secret: &str,
     callback_uri: &str,
     authorization_code: &str,
 ) -> Result<String, anyhow::Error> {
-    let token_url: &str = "https://login.eveonline.com/oauth/token";
+    let token_url: &str = "https://login.eveonline.com/oauth/token";    // API Address
 
     let client: reqwest::Client = reqwest::Client::new();
     let response = client
