@@ -1,5 +1,5 @@
 // Splash
 
 mod Splash {
-    pub mod asciiSplash;
+    pub mod printSplash;
 }
