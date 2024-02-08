@@ -1,5 +1,3 @@
 // Splash
 
-mod Splash {
-    pub mod printSplash;
-}
+pub mod ascii_splash;

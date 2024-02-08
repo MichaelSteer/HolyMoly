@@ -1,43 +1,50 @@
-// App.rs
-// Michael Steer: 2024
-// 
-// Don't delete above whitespace
-
-use tokio;      // Multithreading
-use serde_json; // JSON packing/unpacking
-use reqwest;    // Networking
-use anyhow::{self, Context};     // Error Wrangling
-
-const TOKEN_URL: &str = "https://login.eveonline.com/oauth/xxx";
-
-pub struct App {
-
+pub struct Application {
+    name: String,
+    version: String,
+    running: bool,
 }
 
-impl App {
-
-}
-
- 
-
-// Main function
-#[tokio::main]
-async fn main() {
-
-    // TODO: Move
-    let client_id: &str = "xxx";                                    // Eve Client ID
-    let client_secret: &str = "xxx";                                // Eve Client Secret (TODO: Pull as SysVar or File)
-    let callback_uri: &str = "https://eve-api-callback";            // CCP Callback ID
-    let authorization_code: &str = "xxx";                           // oAuth2 ID
-
-    // How did we do? 🤔🤔🤔
-    match get_token(client_id, client_secret, callback_uri, authorization_code).await {
-        Ok(access_token) => {
-            println!("Access Token: {}", access_token);              // TODO: Rigorously check
-            println!("Done");
+#[allow(dead_code)] // TODO: REMOVE
+impl Application {
+    pub fn new(name: String, version: String) -> Self {
+        Application {
+            name,
+            version,
+            running: false,
         }
-        Err(err) => {
-            eprintln!("Error: {}", err);
+    }
+
+    pub fn start(&mut self) {
+        if !self.running {
+            println!("Starting...");
+            self.running = true;
+        } else {
+            println!("Already running...");
         }
+    }
+
+    pub fn stop(&mut self) {
+        if self.running {
+            println!("Stopping...");
+            self.running = false;
+        } else {
+            println!("Oh No");
+        }
+    }
+
+    pub fn is_running(&self) -> bool {
+        self.running
+    }
+
+    pub fn apploop(&self) {
+        if self.running {
+            println!("Main Loop...");
+        } else {
+            println!("Not running...");
+        }
+    }
+
+    pub fn print_version(&self) {
+        println!("App: {} Version: {}", self.name, self.version);
     }
 }
